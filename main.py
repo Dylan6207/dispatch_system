@@ -16,7 +16,7 @@ db = SQLAlchemy(app)
 # 初始化 LoginManager
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'auth.login'
 
 # 匯入模型與 Blueprint
 from models import User  # 確保 models.py 中有定義 User
