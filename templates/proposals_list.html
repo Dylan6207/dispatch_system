@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}可承接的提案{% endblock %}
+
+{% block content %}
+<h2>可承接的提案</h2>
+
+{% if proposals %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>提案標題</th>
+                <th>描述</th>
+                <th>動作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in proposals %}
+            <tr>
+                <td>{{ p.title }}</td>
+                <td>{{ p.description }}</td>
+                <td>
+                    {% if p.claimed_by %}
+                        已被 {{ p.claimed_by }} 承接
+                    {% else %}
+                        <form method="POST" action="/claim_proposal/{{ p.id }}">
+                            <button type="submit" class="btn btn-success btn-sm">我要承接</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>目前沒有可供承接的提案。</p>
+{% endif %}
+{% endblock %}

@@ -8,6 +8,8 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
+    role = db.Column(db.String(10), nullable=False, default="user")  # 欄位長度可調整，預設是普通用戶
+
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -21,3 +23,4 @@ class Proposal(db.Model):
     description = db.Column(db.Text)
     claimed_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     status = db.Column(db.String(20), default='pending')  # pending, completed
+  

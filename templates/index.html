@@ -1,8 +1,21 @@
-<!doctype html>
-<html>
-<head><title>首頁</title></head>
-<body>
-<h1>歡迎來到民意代表提案系統</h1>
-<p><a href="{{ url_for('register') }}">註冊</a> | <a href="{{ url_for('login') }}">登入</a> | <a href="{{ url_for('proposals') }}">提案系統</a> | <a href="{{ url_for('dashboard') }}">Performance Dashboard</a></p>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}登入{% endblock %}
+
+{% block content %}
+<h2>登入</h2>
+<form method="POST">
+    <div class="mb-3">
+        <label for="username" class="form-label">帳號</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">密碼</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">登入</button>
+</form>
+
+<p class="mt-3">還沒有帳號？<a href="/register">前往註冊</a></p>
+{% endblock %}

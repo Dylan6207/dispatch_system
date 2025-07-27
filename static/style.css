@@ -1,0 +1,96 @@
+/* 基本排版與色彩設定 */
+body {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* 導覽列樣式 */
+.navbar {
+    background-color: #343a40;
+}
+
+.navbar-brand,
+.nav-link {
+    color: #ffffff !important;
+}
+
+/* 主容器 */
+.container {
+    margin-top: 40px;
+    max-width: 960px;
+}
+
+/* 表單樣式 */
+form {
+    margin-top: 20px;
+}
+
+input[type="text"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+textarea {
+    resize: vertical;
+}
+
+/* 按鈕 */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* 表格樣式 */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th,
+td {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    text-align: left;
+}
+
+th {
+    background-color: #e9ecef;
+}
+
+/* Flash 訊息樣式 */
+.alert {
+    padding: 12px;
+    margin-top: 20px;
+    border-radius: 4px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}

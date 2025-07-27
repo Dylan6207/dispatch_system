@@ -1,19 +1,31 @@
-<!doctype html>
-<html>
-<head><title>Performance Dashboard</title></head>
-<body>
-<h1>Performance Dashboard</h1>
-<p><a href="{{ url_for('proposals') }}">提案系統</a> | <a href="{{ url_for('logout') }}">登出</a></p>
+{% extends "base.html" %}
+{% block title %}案件儀表板{% endblock %}
 
-<table border="1" cellpadding="5" cellspacing="0">
-<tr><th>使用者</th><th>承接案件數</th><th>完成案件數</th></tr>
-{% for d in data %}
-<tr>
-  <td>{{ d.username }}</td>
-  <td>{{ d.claimed }}</td>
-  <td>{{ d.completed }}</td>
-</tr>
-{% endfor %}
-</table>
-</body>
-</html>
+{% block content %}
+<h2>案件儀表板</h2>
+
+{% if proposals %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>提案標題</th>
+                <th>描述</th>
+                <th>狀態</th>
+                <th>承接者</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in proposals %}
+            <tr>
+                <td>{{ p.title }}</td>
+                <td>{{ p.description }}</td>
+                <td>{{ p.status }}</td>
+                <td>{{ p.claimed_by or "尚未承接" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>目前尚無任何提案。</p>
+{% endif %}
+{% endblock %}
