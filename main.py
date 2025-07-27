@@ -122,7 +122,9 @@ def complete(proposal_id):
     return redirect(url_for('proposals'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    with app.app_context():
+        db.create_all()  # ✅ 建立資料表
+    app.run(host='0.0.0.0', port=5000)
 
 
 '''
