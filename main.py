@@ -35,10 +35,11 @@ def load_user(user_id):
 with app.app_context():
     db.create_all()
 
-# 預設首頁
+# 預設首頁 為 'dashboard.html'
 @app.route('/')
 def index():
-    return 'App is running!'
+    return render_template('dashboard.html')  # 或其他你寫的首頁html
+
 
 # 啟動 Flask 應用程式
 if __name__ == '__main__':
