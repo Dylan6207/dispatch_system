@@ -1,62 +1,131 @@
-from flask import Flask, request, render_template_string, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from models import db, User, Proposal
 import os
-import json
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 
 app = Flask(__name__)
 
-# Google Sheets 認證設定
-scope = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/drive",
-]
-service_account_info = json.loads(os.environ['GCP_CREDENTIALS'])
-creds = ServiceAccountCredentials.from_json_keyfile_dict(service_account_info, scope)
-client = gspread.authorize(creds)
-sheet = client.open("基層報修案件").sheet1
+# 使用環境變數設定 secret_key
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_secret_key")
 
-# HTML 表單模板
-form_html = """
-<!DOCTYPE html>
-<html>
-<head><title>選民服務表單</title></head>
-<body>
-  <h2>選民需求回報</h2>
-  <form method="POST" action="/submit">
-    <label>姓名：</label><br>
-    <input type="text" name="name" required><br><br>
-    
-    <label>電話：</label><br>
-    <input type="text" name="phone" required><br><br>
-    
-    <label>需求說明：</label><br>
-    <textarea name="description" rows="4" cols="40" required></textarea><br><br>
-    
-    <button type="submit">送出</button>
-  </form>
-</body>
-</html>
-"""
+# SQLite 也在這裡設定
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-@app.route("/")
-def index():
-    return render_template_string(form_html)
+db = SQLAlchemy(app)
 
-@app.route("/submit", methods=["POST"])
-def submit():
-    name = request.form.get("name")
-    phone = request.form.get("phone")
-    description = request.form.get("description")
-    
-    # 寫入 Google Sheets（加一列）
-    sheet.append_row([name, phone, description])
-    
-    return "<h3>感謝您的回報！我們會盡快處理。</h3>"
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+db.init_app(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        if User.query.filter_by(username=username).first():
+            flash('User already exists!')
+            return redirect(url_for('register'))
+        new_user = User(username=username)
+        new_user.set_password(request.form['password'])
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Registration successful. Please login.')
+        return redirect(url_for('login'))
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        user = User.query.filter_by(username=request.form['username']).first()
+        if user and user.check_password(request.form['password']):
+            login_user(user)
+            flash('Logged in successfully.')
+            return redirect(url_for('proposals'))
+        flash('Invalid username or password.')
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Logged out.')
+    return redirect(url_for('home'))
+
+@app.route('/proposals', methods=['GET', 'POST'])
+@login_required
+def proposals():
+    if request.method == 'POST':
+        title = request.form['title']
+        desc = request.form['description']
+        p = Proposal(title=title, description=desc)
+        db.session.add(p)
+        db.session.commit()
+        flash('Proposal added.')
+        return redirect(url_for('proposals'))
+    
+    all_proposals = Proposal.query.all()
+    users = User.query.all()
+    users_dict = {u.id: u.username for u in users}
+    return render_template('proposals.html', proposals=all_proposals, current_user=current_user, users_dict=users_dict)
+
+    
+    # 顯示所有提案
+    all_proposals = Proposal.query.all()
+    return render_template('proposals.html', proposals=all_proposals, current_user=current_user)
+
+@app.route('/claim/<int:proposal_id>')
+@login_required
+def claim(proposal_id):
+    proposal = Proposal.query.get_or_404(proposal_id)
+    if proposal.claimed_by is None:
+        proposal.claimed_by = current_user.id
+        db.session.commit()
+        flash('You have claimed the proposal!')
+    else:
+        flash('Proposal already claimed.')
+    return redirect(url_for('proposals'))
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    users = User.query.all()
+    data = []
+    for user in users:
+        total_claimed = Proposal.query.filter_by(claimed_by=user.id).count()
+        total_completed = Proposal.query.filter_by(claimed_by=user.id, status='completed').count()
+        data.append({'username': user.username, 'claimed': total_claimed, 'completed': total_completed})
+    return render_template('dashboard.html', data=data)
+
+@app.route('/complete/<int:proposal_id>')
+@login_required
+def complete(proposal_id):
+    proposal = Proposal.query.get_or_404(proposal_id)
+    if proposal.claimed_by == current_user.id:
+        proposal.status = 'completed'
+        db.session.commit()
+        flash('Proposal marked as completed.')
+    else:
+        flash('You cannot complete this proposal.')
+    return redirect(url_for('proposals'))
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
+
 
 '''
 | 欄位名稱                            | 說明                                                               | 如何取得                     |

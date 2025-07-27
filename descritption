@@ -1,0 +1,87 @@
+ Flask + SQLite 的簡易範例專案
+ 功能
+    使用者管理（民意代表）
+    註冊/登入（簡易示範，無複雜權限分級）   
+    提案系統
+    民眾可新增提案（Title + Description）
+    搶案機制
+    民意代表可看到「未被承接」的提案清單，點擊「搶案」承接案件
+        一旦被承接，其他人不可再搶
+    Performance Dashboard
+        顯示每位民代承接案件數及完成案件數
+架構概覽
+    /app
+  main.py
+  templates/
+    index.html
+    login.html
+    register.html
+    proposals.html
+    dashboard.html
+  models.py
+  requirements.txt
+
+主要技術
+    Flask (Web 框架)
+    Flask-Login (使用者認證)
+    SQLite (輕量資料庫)
+    Jinja2 (模板引擎)
+
+
+
+要將這個 Flask 專案部署到 Render，我會一步一步教你設定，並提供必要的檔案與設定細節。
+
+✅ 一、專案目錄結構（Render-Friendly）
+你應該把整個專案目錄結構調整成這樣：
+
+pgsql
+複製
+編輯
+/representatives-app
+├── app/
+│   ├── main.py
+│   ├── models.py
+│   └── templates/
+│       ├── index.html
+│       ├── login.html
+│       ├── register.html
+│       ├── proposals.html
+│       └── dashboard.html
+├── requirements.txt
+├── render.yaml
+├── start.sh
+✅ 二、新增檔案
+1️⃣ start.sh
+Render 會用這支 shell script 啟動程式：
+
+bash
+複製
+編輯
+#!/bin/bash
+gunicorn app.main:app --bind 0.0.0.0:$PORT
+記得：部署前一定要給它執行權限（在本機用 chmod +x start.sh）
+
+2️⃣ render.yaml（Render 的設定檔）
+yaml
+複製
+編輯
+services:
+  - type: web
+    name: representatives-app
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: ./start.sh
+    envVars:
+      - key: PORT
+        value: 10000
+PORT 是給 Flask 設定的，和 main.py 中的 app.run(port=10000) 一致。
+
+3️⃣ requirements.txt（安裝套件清單）
+txt
+複製
+編輯
+Flask==3.1.1
+Flask-Login==0.6.2
+Flask-SQLAlchemy==3.0.5
+Werkzeug==2.3.7
+gunicorn==21.2.0

@@ -1,4 +1,5 @@
-gspread
-oauth2client
-line-bot-sdk
-flask
+Flask==3.1.1
+Flask-Login==0.6.2
+Flask-SQLAlchemy==3.0.5
+Werkzeug==2.3.7
+gunicorn==21.2.0
