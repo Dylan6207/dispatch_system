@@ -29,12 +29,13 @@ def submit_proposal():
 
     return render_template('proposal_submit.html')
 
-@proposal_bp.route("/edit/<int:proposal_id>", methods=["GET", "POST"])
+
+@proposal_routes.route("/edit/<int:proposal_id>", methods=["GET", "POST"])
 @login_required
 def edit_proposal(proposal_id):
     if current_user.role != 'admin':
         flash("只有管理者可以編輯提案", "danger")
-        return redirect(url_for("proposal_routes.list_proposals"))
+        return redirect(url_for("proposal.list_proposals"))
     
     proposal = Proposal.query.get_or_404(proposal_id)
     if request.method == "POST":
@@ -42,20 +43,20 @@ def edit_proposal(proposal_id):
         proposal.description = request.form["description"]
         db.session.commit()
         flash("提案已更新", "success")
-        return redirect(url_for("proposal_routes.list_proposals"))
+        return redirect(url_for("proposal.list_proposals"))
     
     return render_template("edit_proposal.html", proposal=proposal)
 
-@proposal_bp.route("/delete/<int:proposal_id>", methods=["POST"])
+@proposal_routes.route("/delete/<int:proposal_id>", methods=["POST"])
 @login_required
 def delete_proposal(proposal_id):
     if current_user.role != 'admin':
         flash("只有管理者可以刪除提案", "danger")
-        return redirect(url_for("proposal_routes.list_proposals"))
+        return redirect(url_for("proposal.list_proposals"))
     
     proposal = Proposal.query.get_or_404(proposal_id)
     db.session.delete(proposal)
     db.session.commit()
     flash("提案已刪除", "success")
-    return redirect(url_for("proposal_routes.list_proposals"))
+    return redirect(url_for("proposal.list_proposals"))
 
