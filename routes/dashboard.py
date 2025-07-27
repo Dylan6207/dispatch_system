@@ -1,18 +1,14 @@
 from flask import Blueprint, render_template
-from models import db, Proposal, User
-from flask_login import login_required
+from flask_login import login_required, current_user
+from ..models import Proposal, User
 
-dashboard = Blueprint('dashboard', __name__)
+dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 
-@dashboard.route('/dashboard')
+@dashboard_bp.route('/')
 @login_required
 def show_dashboard():
-    # 可以根據使用者角色分不同儀表板
-    all_proposals = Proposal.query.all()
-    proposal_count = Proposal.query.count()
-    user_count = User.query.count()
-
+    total = Proposal.query.count()
+    allp = Proposal.query.order_by(Proposal.created_at.desc()).limit(10).all()
+    users = User.query.count()
     return render_template('dashboard.html',
-                           proposal_count=proposal_count,
-                           user_count=user_count,
-                           proposals=all_proposals)
+                           proposal_count=total, user_count=users, proposals=allp)
