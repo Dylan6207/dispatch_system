@@ -5,6 +5,7 @@ from app.models import init_admin_account
 from app.routes.auth import auth as auth_bp
 from app.routes.dashboard import dashboard_bp
 from app.routes.proposal_routes import proposal_bp
+from app.routes.index import index_bp
 
 def create_app():
     app = Flask(__name__)
@@ -23,6 +24,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(proposal_bp)
+    app.register_blueprint(index_bp)
 
     with app.app_context():
         db.create_all()
