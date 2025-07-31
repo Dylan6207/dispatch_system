@@ -1,5 +1,7 @@
 Flask==2.3.3
+
 flask_sqlalchemy==3.1.1
 flask_login==0.6.3
 gunicorn
 werkzeug<3.0
+psycopg2-binary

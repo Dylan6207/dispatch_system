@@ -31,11 +31,15 @@ class Bid(db.Model):
 
 def init_admin_account(app):
     with app.app_context():
-        if not User.query.filter_by(username='admin').first():
-            admin = User(username='admin', is_admin=True)
-            admin_password = app.config.get('ADMIN_PASSWORD')
-            if not admin_password:
-                admin_password = 'admin'
+        admin_username = app.config.get('ADMIN_USERNAME') or 'admin'
+        admin_password = app.config.get('ADMIN_PASSWORD') or 'admin'
+        admin = User.query.filter_by(username=admin_username).first()
+        if not admin:
+            admin = User(username=admin_username, is_admin=True)
             admin.set_password(admin_password)
             db.session.add(admin)
+            db.session.commit()
+        else:
+            # 若已存在則同步密碼
+            admin.set_password(admin_password)
             db.session.commit()
