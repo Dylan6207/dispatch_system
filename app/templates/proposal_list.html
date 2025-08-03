@@ -17,7 +17,7 @@
             <tr>
                 <td>{{ p.title }}</td>
                 <td>{{ p.description }}</td>
-                <td>{{ p.local_created_at() }}</td>
+                <td>{{ p.local_created_at().strftime('%Y-%m-%d %H:%M:%S') }}</td>
             </tr>
             {% endfor %}
         </tbody>
