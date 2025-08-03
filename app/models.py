@@ -1,7 +1,13 @@
 from app.extensions import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+
+def to_local(dt):
+    if dt is None:
+        return None
+    local_tz = timezone(timedelta(hours=8))
+    return dt.astimezone(local_tz)
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -20,14 +26,15 @@ class Project(db.Model):
     title = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    # 可擴充其他欄位
+
+    def local_created_at(self):
+        return to_local(self.created_at)
 
 class Bid(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
     bid_time = db.Column(db.DateTime, default=datetime.utcnow)
-    # 可擴充其他欄位
 
 def init_admin_account(app):
     with app.app_context():
@@ -40,6 +47,5 @@ def init_admin_account(app):
             db.session.add(admin)
             db.session.commit()
         else:
-            # 若已存在則同步密碼
             admin.set_password(admin_password)
             db.session.commit()
