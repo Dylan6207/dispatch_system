@@ -25,9 +25,76 @@
         <label for="password">密碼：</label><br>
         <input type="password" name="password" required><br><br>
 
+        <label for="county">縣市：</label><br>
+        <select name="county" id="county" required>
+            <option value="">請選擇</option>
+        </select><br><br>
+        <label for="town">鄉鎮市：</label><br>
+        <select name="town" id="town" required disabled>
+            <option value="">請先選擇縣市</option>
+        </select><br><br>
+        <label for="village">村里：</label><br>
+        <select name="village" id="village" required disabled>
+            <option value="">請先選擇鄉鎮市</option>
+        </select><br><br>
+
         <button type="submit">註冊</button>
     </form>
 
     <p>已有帳號？<a href="{{ url_for('auth.login') }}">前往登入</a></p>
+
+    <script>
+    // 動態載入台灣縣市、鄉鎮市、村里
+    const countySelect = document.getElementById('county');
+    const townSelect = document.getElementById('town');
+    const villageSelect = document.getElementById('village');
+    // 載入縣市
+    fetch('/api/counties').then(r=>r.json()).then(data=>{
+        data.forEach(function(county){
+            const opt = document.createElement('option');
+            opt.value = county;
+            opt.textContent = county;
+            countySelect.appendChild(opt);
+        });
+    });
+    countySelect.addEventListener('change', function() {
+        townSelect.innerHTML = '<option value="">請選擇</option>';
+        villageSelect.innerHTML = '<option value="">請先選擇鄉鎮市</option>';
+        villageSelect.disabled = true;
+        if (this.value) {
+            townSelect.disabled = false;
+            fetch(`/api/towns?county=${encodeURIComponent(this.value)}`)
+                .then(r=>r.json())
+                .then(data=>{
+                    data.forEach(function(town){
+                        const opt = document.createElement('option');
+                        opt.value = town;
+                        opt.textContent = town;
+                        townSelect.appendChild(opt);
+                    });
+                });
+        } else {
+            townSelect.disabled = true;
+        }
+    });
+    townSelect.addEventListener('change', function() {
+        villageSelect.innerHTML = '<option value="">請選擇</option>';
+        if (countySelect.value && this.value) {
+            villageSelect.disabled = false;
+            fetch(`/api/villages?county=${encodeURIComponent(countySelect.value)}&town=${encodeURIComponent(this.value)}`)
+                .then(r=>r.json())
+                .then(data=>{
+                    data.forEach(function(village){
+                        const opt = document.createElement('option');
+                        opt.value = village;
+                        opt.textContent = village;
+                        villageSelect.appendChild(opt);
+                    });
+                });
+        } else {
+            villageSelect.disabled = true;
+        }
+    });
+    </script>
 </body>
 </html>

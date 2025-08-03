@@ -3,6 +3,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, timezone
 
+＃將 UTC 時間轉換為當地時間（In this case ,i built web server in Singapore Render server）
 def to_local(dt):
     if dt is None:
         return None
@@ -14,6 +15,9 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
+    county = db.Column(db.String(20), nullable=True)  # 縣市
+    town = db.Column(db.String(20), nullable=True)    # 鄉鎮市
+    village = db.Column(db.String(20), nullable=True) # 村里
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
