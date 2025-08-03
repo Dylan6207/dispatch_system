@@ -3,7 +3,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, timezone
 
-＃將 UTC 時間轉換為當地時間（In this case ,i built web server in Singapore Render server）
+# UTC 時間轉換為當地時間（In this case ,i built web server in Singapore Render server）
 def to_local(dt):
     if dt is None:
         return None
