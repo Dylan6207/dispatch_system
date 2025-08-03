@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}提案列表{% endblock %}
+
+{% block content %}
+<h2>提案列表</h2>
+{% if projects %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>標題</th>
+                <th>描述</th>
+                <th>建立時間</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in projects %}
+            <tr>
+                <td>{{ p.title }}</td>
+                <td>{{ p.description }}</td>
+                <td>{{ p.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>目前尚無任何提案。</p>
+{% endif %}
+{% endblock %}
