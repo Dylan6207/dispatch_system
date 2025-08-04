@@ -7,7 +7,8 @@ import os
 auth = Blueprint("auth", __name__)
 
 # 讀取 village_data.json
-DATA_PATH = os.path.join(os.path.dirname(__file__), "../village_data.json")
+DATA_PATH = os.path.join(os.path.dirname(__file__), '..', 'village_data.json')
+DATA_PATH = os.path.abspath(DATA_PATH)
 with open(DATA_PATH, encoding='utf-8') as f:
     village_data = json.load(f)
 
